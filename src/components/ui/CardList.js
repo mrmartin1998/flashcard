@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { getItems, STORAGE_KEYS } from '@/lib/storage/localStorage';
+import { getItems, updateItem, deleteItem, STORAGE_KEYS } from '@/lib/storage/localStorage';
 import Flashcard from './Flashcard';
 
 const CardList = () => {
@@ -9,29 +9,49 @@ const CardList = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState(['all']);
 
-  useEffect(() => {
-    const loadCards = () => {
-      const storedCards = getItems(STORAGE_KEYS.FLASHCARDS) || [];
-      const validCards = storedCards.filter(card => card.front && card.back);
-      setCards(validCards);
-      
-      const uniqueCategories = ['all', ...new Set(validCards
-        .map(card => card.category)
-        .filter(Boolean)
-      )];
-      setCategories(uniqueCategories);
-    };
+  const loadCards = () => {
+    const storedCards = getItems(STORAGE_KEYS.FLASHCARDS) || [];
+    const validCards = storedCards.filter(card => card.front && card.back);
+    setCards(validCards);
+    
+    const uniqueCategories = ['all', ...new Set(validCards
+      .map(card => card.category)
+      .filter(Boolean)
+    )];
+    setCategories(uniqueCategories);
+  };
 
+  useEffect(() => {
     loadCards();
   }, []);
 
+  const handleDelete = (id) => {
+    try {
+      deleteItem(STORAGE_KEYS.FLASHCARDS, id);
+      loadCards(); // Reload cards after deletion
+    } catch (error) {
+      console.error('Error deleting card:', error);
+      alert('Failed to delete card. Please try again.');
+    }
+  };
+
+  const handleEdit = (id, updatedData) => {
+    try {
+      updateItem(STORAGE_KEYS.FLASHCARDS, id, updatedData);
+      loadCards(); // Reload cards after edit
+    } catch (error) {
+      console.error('Error updating card:', error);
+      alert('Failed to update card. Please try again.');
+    }
+  };
+
   const filteredCards = useMemo(() => {
     if (selectedCategory === 'all') {
-      return [...cards].sort((a, b) => a.createdAt - b.createdAt); // Sort by creation date
+      return [...cards].sort((a, b) => b.createdAt - a.createdAt);
     }
     return cards
       .filter(card => card.category === selectedCategory)
-      .sort((a, b) => a.createdAt - b.createdAt);
+      .sort((a, b) => b.createdAt - a.createdAt);
   }, [cards, selectedCategory]);
 
   return (
@@ -66,8 +86,9 @@ const CardList = () => {
           {filteredCards.map(card => (
             <div className="w-full" key={card.id} style={{ perspective: '1000px' }}>
               <Flashcard 
-                front={card.front}
-                back={card.back}
+                {...card}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
               />
             </div>
           ))}
