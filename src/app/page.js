@@ -1,30 +1,35 @@
-// Import the Layout component which provides the page structure and navigation
+// Import Layout component for consistent page structure and navigation across the app
 import Layout from '@/components/layout/Layout';
-// Import the Flashcard component that displays interactive flashcards
+// Import Flashcard component that handles the interactive card flip functionality
 import Flashcard from '@/components/ui/Flashcard';
+// Import Link component from Next.js for client-side navigation between pages
+import Link from 'next/link';
 
-// Home component - Main landing page of the Flashcard application
+// Home component serves as the landing page of the application
+// Displays a welcome message, demo flashcard, and call-to-action button
 export default function Home() {
   return (
-    // Wrap page content in Layout component for consistent styling
+    // Layout wrapper provides consistent styling and navigation structure
     <Layout>
-      {/* Hero section that takes up 80% of the viewport height */}
+      {/* Hero section spans most of the viewport for visual impact */}
       <div className="hero min-h-[80vh]">
-        {/* Center content both horizontally and vertically */}
+        {/* Hero content container centers all child elements */}
         <div className="hero-content text-center">
-          {/* Container with max width and centered flex layout */}
+          {/* Inner container limits content width and arranges items vertically */}
           <div className="max-w-md flex flex-col items-center gap-8">
-            {/* Main heading */}
-            <h1 className="text-3xl font-bold">Welcome to Flashcard App</h1>
-            {/* Descriptive text with vertical padding */}
+            {/* Main title of the application */}
+            <h1 className="text-5xl font-bold">Welcome to Flashcard App</h1>
+            {/* Instructional text for the demo flashcard */}
             <p className="py-6">Start learning with interactive flashcards. Click the card below to try it out!</p>
-            {/* Demo flashcard with sample content */}
+            {/* Demo flashcard component with example React definition */}
             <Flashcard 
               front="What is React?"
               back="A JavaScript library for building user interfaces"
             />
-            {/* Call-to-action button styled with primary color */}
-            <button className="btn btn-primary">Create Your First Card</button>
+            {/* Navigation link wrapped around primary CTA button */}
+            <Link href="/cards">
+              <button className="btn btn-primary">Get Started</button>
+            </Link>
           </div>
         </div>
       </div>
