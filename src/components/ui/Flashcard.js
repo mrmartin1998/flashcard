@@ -22,19 +22,19 @@ const Flashcard = ({ front, back }) => {
       // - Fixed width/height
       // - Background color and shadow effects
       // - Hover and transition animations
-      className="card w-96 h-64 bg-base-200 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
+      className="card w-72 h-48 bg-base-200 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
     >
       {/* Front of card - scales to 0 height when flipped */}
       <div className={`card-body items-center text-center transform transition-all duration-500 ${isFlipped ? 'scale-y-0' : 'scale-y-100'}`}>
-        <h2 className="card-title">{front}</h2>
+        <h2 className="card-title text-base">{front}</h2>
       </div>
       
       {/* Back of card - absolutely positioned over front, scales to full height when flipped */}
       <div className={`card-body items-center text-center absolute inset-0 transform transition-all duration-500 ${isFlipped ? 'scale-y-100' : 'scale-y-0'}`}>
-        <p className="text-lg">{back}</p>
+        <p className="text-base">{back}</p>
       </div>
     </div>
   );
 };
 
-export default Flashcard; 
+export default Flashcard;

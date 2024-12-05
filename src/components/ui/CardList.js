@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getItems, STORAGE_KEYS } from '@/lib/storage/localStorage';
 import Flashcard from './Flashcard';
 
@@ -11,36 +11,50 @@ const CardList = () => {
 
   useEffect(() => {
     const loadCards = () => {
-      const storedCards = getItems(STORAGE_KEYS.FLASHCARDS);
-      setCards(storedCards);
+      const storedCards = getItems(STORAGE_KEYS.FLASHCARDS) || [];
+      const validCards = storedCards.filter(card => card.front && card.back);
+      setCards(validCards);
       
-      // Extract unique categories
-      const uniqueCategories = ['all', ...new Set(storedCards.map(card => card.category))];
+      const uniqueCategories = ['all', ...new Set(validCards
+        .map(card => card.category)
+        .filter(Boolean)
+      )];
       setCategories(uniqueCategories);
     };
 
     loadCards();
   }, []);
 
-  const filteredCards = selectedCategory === 'all' 
-    ? cards 
-    : cards.filter(card => card.category === selectedCategory);
+  const filteredCards = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return [...cards].sort((a, b) => a.createdAt - b.createdAt); // Sort by creation date
+    }
+    return cards
+      .filter(card => card.category === selectedCategory)
+      .sort((a, b) => a.createdAt - b.createdAt);
+  }, [cards, selectedCategory]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
+    <div className="flex flex-col space-y-6">
+      <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Your Flashcards</h2>
-        <select 
-          className="select select-bordered w-full max-w-xs"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          {categories.map(category => (
-            <option key={category} value={category}>
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </option>
-          ))}
-        </select>
+        <div className="flex justify-end flex-1">
+          {cards.length > 0 && (
+            <select 
+              className="select select-bordered w-48"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              {categories.map(category => (
+                <option key={category} value={category}>
+                  {category === 'all' 
+                    ? 'All Categories'
+                    : category.charAt(0).toUpperCase() + category.slice(1)}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
       </div>
 
       {filteredCards.length === 0 ? (
@@ -48,13 +62,14 @@ const CardList = () => {
           <p className="text-lg">No flashcards found. Create your first card!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 relative">
           {filteredCards.map(card => (
-            <Flashcard 
-              key={card.id}
-              front={card.front}
-              back={card.back}
-            />
+            <div className="w-full" key={card.id} style={{ perspective: '1000px' }}>
+              <Flashcard 
+                front={card.front}
+                back={card.back}
+              />
+            </div>
           ))}
         </div>
       )}
@@ -62,4 +77,4 @@ const CardList = () => {
   );
 };
 
-export default CardList; 
+export default CardList;
