@@ -20,12 +20,12 @@ FLASHCARD APP DEVELOPMENT ROADMAP
    - Implement dark/light mode toggle
 
 3. Basic CRUD Operations
-   - Implement local storage utilities
-   - Create flashcard functionality
-   - Read/Display flashcards
-   - Update existing flashcards
-   - Delete flashcards
-   - Category management
+   ✓ Implement local storage utilities
+   ✓ Create flashcard functionality
+   ✓ Read/Display flashcards
+   ✓ Update existing flashcards
+   ✓ Delete flashcards
+   ✓ Category management
    - Testing Phase 2:
      * Test localStorage persistence
      * Test CRUD operations
@@ -52,7 +52,7 @@ FLASHCARD APP DEVELOPMENT ROADMAP
    - Display review history
 
 7. Additional Features
-   - Add category filtering
+   ✓ Add category filtering
    - Implement search functionality
    - Add export/import functionality
    - Implement daily review notifications
