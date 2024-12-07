@@ -32,11 +32,11 @@ FLASHCARD APP DEVELOPMENT ROADMAP
      * ✓ Test category filtering
 
 4. Spaced Repetition System
-   - Design spaced repetition algorithm
-   - Implement card scheduling logic
-   - Add difficulty rating system
-   - Track review history
-   - Calculate next review dates
+   ✓ Design spaced repetition algorithm (Implemented SuperMemo 2)
+   ✓ Implement card scheduling logic
+   ✓ Add difficulty rating system
+   ✓ Track review history
+   ✓ Calculate next review dates
 
 5. Study Session Features
    ✓ Create study session interface
