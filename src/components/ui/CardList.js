@@ -8,27 +8,37 @@ const CardList = () => {
   const [cards, setCards] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState(['all']);
+  const [isLoading, setIsLoading] = useState(true);
 
   const loadCards = () => {
-    const storedCards = getItems(STORAGE_KEYS.FLASHCARDS) || [];
-    const validCards = storedCards.filter(card => card.front && card.back);
-    setCards(validCards);
-    
-    const uniqueCategories = ['all', ...new Set(validCards
-      .map(card => card.category)
-      .filter(Boolean)
-    )];
-    setCategories(uniqueCategories);
+    try {
+      const storedCards = getItems(STORAGE_KEYS.FLASHCARDS) || [];
+      const validCards = storedCards.filter(card => card.front && card.back);
+      console.log('Loaded cards:', validCards); // Debug log
+      setCards(validCards);
+      
+      const uniqueCategories = ['all', ...new Set(validCards
+        .map(card => card.category)
+        .filter(Boolean)
+      )];
+      setCategories(uniqueCategories);
+    } catch (error) {
+      console.error('Error loading cards:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     loadCards();
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     try {
-      deleteItem(STORAGE_KEYS.FLASHCARDS, id);
-      loadCards(); // Reload cards after deletion
+      console.log('Deleting card with ID:', id); // Debug log
+      const remainingCards = deleteItem(STORAGE_KEYS.FLASHCARDS, id);
+      console.log('Remaining cards:', remainingCards); // Debug log
+      setCards(remainingCards);
     } catch (error) {
       console.error('Error deleting card:', error);
       alert('Failed to delete card. Please try again.');
@@ -37,8 +47,9 @@ const CardList = () => {
 
   const handleEdit = (id, updatedData) => {
     try {
-      updateItem(STORAGE_KEYS.FLASHCARDS, id, updatedData);
-      loadCards(); // Reload cards after edit
+      console.log('Updating card:', id, updatedData); // Debug log
+      const updatedCards = updateItem(STORAGE_KEYS.FLASHCARDS, id, updatedData);
+      setCards(updatedCards);
     } catch (error) {
       console.error('Error updating card:', error);
       alert('Failed to update card. Please try again.');
@@ -47,44 +58,43 @@ const CardList = () => {
 
   const filteredCards = useMemo(() => {
     if (selectedCategory === 'all') {
-      return [...cards].sort((a, b) => b.createdAt - a.createdAt);
+      return [...cards].sort((a, b) => 
+        new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      );
     }
     return cards
       .filter(card => card.category === selectedCategory)
-      .sort((a, b) => b.createdAt - a.createdAt);
+      .sort((a, b) => 
+        new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      );
   }, [cards, selectedCategory]);
 
+  if (isLoading) {
+    return <div className="text-center py-10">Loading cards...</div>;
+  }
+
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Your Flashcards</h2>
-        <div className="flex justify-end flex-1">
-          {cards.length > 0 && (
-            <select 
-              className="select select-bordered w-48"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category === 'all' 
-                    ? 'All Categories'
-                    : category.charAt(0).toUpperCase() + category.slice(1)}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
+        <select 
+          className="select select-bordered w-full max-w-xs"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          {categories.map(category => (
+            <option key={category} value={category}>
+              {category.charAt(0).toUpperCase() + category.slice(1)}
+            </option>
+          ))}
+        </select>
       </div>
 
       {filteredCards.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-lg">No flashcards found. Create your first card!</p>
-        </div>
+        <div className="text-center py-10">No cards found.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 relative">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {filteredCards.map(card => (
-            <div className="w-full" key={card.id} style={{ perspective: '1000px' }}>
+            <div key={card.id} style={{ perspective: '1000px' }}>
               <Flashcard 
                 {...card}
                 onDelete={handleDelete}
