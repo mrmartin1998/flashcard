@@ -42,4 +42,16 @@ export const deleteItem = (key, id) => {
   const filteredItems = items.filter(item => item.id !== id);
   localStorage.setItem(key, JSON.stringify(filteredItems));
   return filteredItems;
+};
+
+export const clearStorage = (key) => {
+  try {
+    if (key) {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.clear();
+    }
+  } catch (error) {
+    console.error('Error clearing storage:', error);
+  }
 }; 
