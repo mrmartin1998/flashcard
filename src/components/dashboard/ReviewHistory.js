@@ -7,12 +7,12 @@ const ReviewHistory = ({ sessions }) => {
   // Get last 7 days of sessions
   const recentSessions = sortedSessions.slice(0, 7);
 
-  // Calculate total stats
+  // Calculate total stats with initial values and null checks
   const totalStats = sessions.reduce((acc, session) => {
-    acc.totalCards += session.cardsStudied;
-    acc.totalCorrect += session.correctAnswers;
-    acc.totalIncorrect += session.incorrectAnswers;
-    acc.totalTime += session.duration;
+    acc.totalCards += session.cardsStudied || 0;
+    acc.totalCorrect += session.correctAnswers || 0;
+    acc.totalIncorrect += session.incorrectAnswers || 0;
+    acc.totalTime += session.duration || 0;
     return acc;
   }, { totalCards: 0, totalCorrect: 0, totalIncorrect: 0, totalTime: 0 });
 
@@ -27,6 +27,17 @@ const ReviewHistory = ({ sessions }) => {
     });
   };
 
+  // Safe calculation functions
+  const calculatePercentage = (correct, total) => {
+    if (!total) return '0';
+    return Math.round((correct / total) * 100).toString();
+  };
+
+  const formatDuration = (duration) => {
+    if (!duration) return '0';
+    return Math.round(duration / 60).toString();
+  };
+
   return (
     <div className="card bg-base-200">
       <div className="card-body">
@@ -36,7 +47,7 @@ const ReviewHistory = ({ sessions }) => {
           <div className="stat">
             <div className="stat-title">Total Time Studied</div>
             <div className="stat-value">
-              {Math.round(totalStats.totalTime / 60)} min
+              {formatDuration(totalStats.totalTime)} min
             </div>
           </div>
           
@@ -48,7 +59,7 @@ const ReviewHistory = ({ sessions }) => {
           <div className="stat">
             <div className="stat-title">Success Rate</div>
             <div className="stat-value">
-              {Math.round((totalStats.totalCorrect / totalStats.totalCards) * 100) || 0}%
+              {calculatePercentage(totalStats.totalCorrect, totalStats.totalCards)}%
             </div>
           </div>
         </div>
@@ -69,11 +80,11 @@ const ReviewHistory = ({ sessions }) => {
                 {recentSessions.map((session) => (
                   <tr key={session.id}>
                     <td>{formatDate(session.date)}</td>
-                    <td>{session.cardsStudied}</td>
+                    <td>{session.cardsStudied || 0}</td>
                     <td className="text-success">
-                      {Math.round((session.correctAnswers / session.cardsStudied) * 100)}%
+                      {calculatePercentage(session.correctAnswers, session.cardsStudied)}%
                     </td>
-                    <td>{Math.round(session.duration / 60)} min</td>
+                    <td>{formatDuration(session.duration)} min</td>
                   </tr>
                 ))}
               </tbody>
